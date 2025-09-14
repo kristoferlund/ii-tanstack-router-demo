@@ -1,7 +1,7 @@
 export default function GithubLink() {
   return (
     <a
-      href="https://github.com/kristoferlund/ic-vite-react-next"
+      href="https://github.com/kristoferlund/ii-tanstack-router-demo"
       target="_blank"
       rel="noreferrer"
     >
