@@ -29,7 +29,11 @@ if (!rootElement) {
 createRoot(rootElement).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <InternetIdentityProvider>
+      <InternetIdentityProvider loginOptions={{
+        identityProvider: process.env.DFX_NETWORK === "local"
+          ? `http://${process.env.CANISTER_ID_INTERNET_IDENTITY || ""}.localhost:4943`
+          : "https://identity.ic0.app"
+      }}>
         <RouterProvider router={router} />
       </InternetIdentityProvider>
     </QueryClientProvider>
