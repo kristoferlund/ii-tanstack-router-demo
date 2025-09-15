@@ -1,138 +1,126 @@
-# ICP + React + TypeScript + Vite + Tailwind + Shadcn/UI + Tanstack Query/Router
+# ii-tanstack-router-demo — Internet Identity + ic-use-actor + TanStack Router demo
 
-This template provides a batteries included setup for an ICP/React application with the latest versions of Vite, TypeScript, Tailwind CSS, Shadcn/UI, SWC, Eslint and Tanstack Query/Router.
+A minimal demo showing how to integrate Internet Identity (`ic-use-internet-identity`) and typed canister hooks (`ic-use-actor`) into a React + Vite application that uses TanStack Router. The repository demonstrates the recommended pattern: initialize Internet Identity at the app root, restore any cached identity, wait for actor hooks to initialize, then authenticate actors with the restored identity (useful for route guards / pre-loaders).
 
-> [!TIP]
-> Fork this repository as a starting point for your next ICP project.
->
-> Live demo: <https://upacy-bqaaa-aaaal-qr7qa-cai.icp0.io>
+Why this demo
 
-> [!TIP]
-> This template is also available in a version using [ic-reactor](https://www.npmjs.com/package/@ic-reactor/react) instead of Tanstack Query. Check out that version from the [ic-reactor branch](https://github.com/kristoferlund/ic-vite-react-next/tree/ic-reactor).
+- Purpose: show a correct, practical wiring of Internet Identity + `ic-use-actor` in a Vite + React app that uses TanStack Router.
+- Demonstrates: restoring cached identity, initializing typed actor hooks, authenticating actors before loading protected routes.
+- Includes local development support for a local Internet Identity canister.
 
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]](LICENSE)
+Highlights
 
-![](./media/screenshot.png)
+- Root `InternetIdentityProvider` mounted at the app root.
+- Typed actor hooks created with `ic-use-actor` and authenticated with the restored identity.
+- Example `beforeLoad`/pre-loader usage with TanStack Router to ensure identity and actors before route navigation.
+- Local II support: when running against a local `dfx` network the demo points to the local Internet Identity canister.
 
-## Features
+Quick start
 
-### Backend
+Prerequisites
 
-The Rust based backend exposes one endpoint only, the `greet` function that returns a greeting message.
+- `pnpm`
+- (For local canister development) `dfx` and a local Internet Computer replica
+- Node.js
 
-### Frontend
+Install dependencies
 
-The React/Vite/TS based frontend allows the user to input a name and click a button to fetch the greeting message from the backend.
+```bash
+pnpm install
+```
 
-Dependencies:
-
-- [React 19](https://react.dev): The long awaited upgrade brings form actions, optimistic UI updates while mutating, etc etc.
-- [Vite 6](https://vite.dev/): The most significant major release since Vite 2, featuring a new Environment API for enhanced flexibility, extended framework support, and streamlined performance for modern web development.
-- [Tailwind 4](https://tailwindcss.com/docs/v4-beta): The new version of Tailwind CSS is a ground-up rewrite of the framework, providing faster builds, great new CSS classes and better performance.
-- [Tanstack Query 5](https://tanstack.com/query/latest): The template uses Tanstack Query for data fetching, caching and loading state management.
-- [Tanstack Router](https://tanstack.com/router/latest): Modern and scalable routing for React and Solid applications
-- [SWC](https://swc.rs/): The Rust based compiler and bundler that provides up to 70x faster build times than Babel.
-- [Eslint 9](https://eslint.org/): The latest release of Eslint introduces the flat configuration API along with new rules and bug fixes.
-- [shadcn/ui](https://ui.shadcn.com/): Yes, shadcn support for Tailwind 4 is finally here!
-
-## Setup, dev environment
-
-There are two main ways to set up the dev environment:
-
-### 1. Using a VS Code Dev Container
-
-The dev containers extension lets you use a Docker container as a full-featured
-development environment. This repository includes a dev container configuration
-that you can use to open the project with all the necessary tools and
-dependencies pre-installed.
-
-Pre-requisites:
-
-- [Docker](https://www.docker.com/products/docker-desktop)
-- [Visual Studio Code](https://code.visualstudio.com/)
-- [Dev Containers Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
-
-Once Docker, Visual Studio Code and the Dev Containers Extension are installed,
-you can open the project in a container by clicking the button below:
-
-[![Open locally in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/kristoferlund/ic-vite-react-next)
-
-### 2. Setup manually
-
-Pre-requisites:
-
-- [Local Internet Computer dev environment](https://internetcomputer.org/docs/current/developer-docs/backend/rust/dev-env)
-- [pnpm](https://pnpm.io/installation)
-
-Once you have the prerequisites installed, you can clone this repository and run
-the project.
-
-## Running the project
-
-### 1. Start the Internet Computer
+Start local replica (optional, for local canisters)
 
 ```bash
 dfx start --background
 ```
 
-### 2. Install dependencies
+Deploy canisters (optional)
 
-```
-pnpm install
-```
-
-### 3. Deploy the canisters
-
-```
+```bash
 dfx deploy
 ```
 
-## Develop
-
-During development, you can run the frontend with hot reloading using Vite.
+Start the frontend
 
 ```bash
 pnpm run dev
 ```
 
-## Contributors
+Local Internet Identity
 
-<!-- readme: collaborators,contributors -start -->
-<table>
-	<tbody>
-		<tr>
-            <td align="center">
-                <a href="https://github.com/kristoferlund">
-                    <img src="https://avatars.githubusercontent.com/u/9698363?v=4" width="100;" alt="kristoferlund"/>
-                    <br />
-                    <sub><b>Kristofer</b></sub>
-                </a>
-            </td>
-		</tr>
-	<tbody>
-</table>
-<!-- readme: collaborators,contributors -end -->
+The demo automatically uses a local Internet Identity URL when `process.env.DFX_NETWORK === "local"`. The app's `src/frontend/main.tsx` demonstrates the pattern:
 
-## License
+```ts
+<InternetIdentityProvider
+  loginOptions={{
+    identityProvider:
+      process.env.DFX_NETWORK === "local"
+        ? `http://${process.env.CANISTER_ID_INTERNET_IDENTITY || ""}.localhost:4943`
+        : "https://identity.ic0.app",
+  }}
+>
+  <RouterProvider router={router} />
+</InternetIdentityProvider>
+```
 
-This project is licensed under the MIT License. See the LICENSE file for more
-details.
+When running locally, ensure `CANISTER_ID_INTERNET_IDENTITY` is available in the environment (or let `dfx` provide it).
 
-## Contributing
+Router integration (TanStack Router)
 
-Contributions are welcome! Please open an issue or submit a pull request if you
-have any suggestions or improvements.
+Key idea: always await the identity initialization first, then ensure actor hooks are initialized, then authenticate actor hooks with the identity — perform these steps in a route `beforeLoad` / pre-loader so protected routes only render after these steps complete.
 
-[contributors-shield]: https://img.shields.io/github/contributors/kristoferlund/ic-vite-react-next.svg?style=for-the-badge
-[contributors-url]: https://github.com/kristoferlund/ic-vite-react-next/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/kristoferlund/ic-vite-react-next.svg?style=for-the-badge
-[forks-url]: https://github.com/kristoferlund/ic-vite-react-next/network/members
-[stars-shield]: https://img.shields.io/github/stars/kristoferlund/ic-vite-react-next?style=for-the-badge
-[stars-url]: https://github.com/kristoferlund/ic-vite-react-next/stargazers
-[issues-shield]: https://img.shields.io/github/issues/kristoferlund/ic-vite-react-next.svg?style=for-the-badge
-[issues-url]: https://github.com/kristoferlund/ic-vite-react-next/issues
-[license-shield]: https://img.shields.io/github/license/kristoferlund/ic-vite-react-next.svg?style=for-the-badge
+Minimal example (route `beforeLoad`):
+
+```ts
+import { ensureInitialized as ensureIdentityInitialized } from "ic-use-internet-identity";
+import { ensureAllInitialized, authenticateAll } from "ic-use-actor";
+import { redirect } from "@tanstack/react-router";
+
+export const protectedRoute = createRoute({
+  path: "dashboard",
+  async beforeLoad() {
+    // 1) Restore any cached identity
+    const identity = await ensureIdentityInitialized();
+    if (!identity) throw redirect({ to: "/login" });
+
+    // 2) Wait for actor hooks to finish anonymous initialization
+    await ensureAllInitialized();
+
+    // 3) Authenticate registered actor hooks with the restored identity
+    await authenticateAll(identity);
+  },
+  component: Dashboard,
+});
+```
+
+Important: `beforeLoad` runs during navigation and does not automatically react to later auth changes — inside components observe auth state reactively.
+
+Login flow (UI)
+
+Use the `useInternetIdentity()` hook from `ic-use-internet-identity` inside components to trigger `login()` during a user interaction (for example, on a button click). The hook exposes `login()`, `clear()`, `status`, `error`, `identity` and convenience booleans (`isIdle`, `isLoggingIn`, etc.).
+
+Attach the restored identity to your actor hooks by calling each hook's `authenticate(identity)`; the `ic-use-actor` helper `authenticateAll(identity)` can authenticate all registered hooks at once.
+
+Project structure
+
+- `src/frontend` — React app, components, routes, `main.tsx` (where `InternetIdentityProvider` is mounted).
+- `src/backend` — Rust canister (simple greet example used by the template).
+- `routeTree.gen.ts` — generated TanStack Router route tree used by the demo.
+
+Notes about this demo
+
+- This repository references the helper libraries as local workspace packages in `package.json`:
+  - `ic-use-actor` and `ic-use-internet-identity` are referenced with `file:` paths for local development.
+- Recent changes in this demo:
+  - Use local Internet Identity for authentication when running locally.
+  - Use `ic-use-actor` for backend calls and demonstrate authenticating actors before protected routes load.
+- If you want to use published packages instead of local workspace packages, replace the `file:` dependencies in `package.json` with the npm package names.
+
+Contributing
+
+Small, focused PRs are welcome. See `AGENTS.md` for recommended local dev commands and constraints when working with canisters.
+
+License
+
+This demo is provided under the MIT License. See the `LICENSE` file for details.
