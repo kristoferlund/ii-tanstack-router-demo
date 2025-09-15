@@ -15,6 +15,10 @@ A minimal demo showing how to integrate Internet Identity (`ic-use-internet-iden
 - Example `beforeLoad`/pre-loader usage with TanStack Router to ensure identity and actors before route navigation.
 - Local II support: when running against a local `dfx` network the demo points to the local Internet Identity canister.
 
+## Live demo
+
+https://bervn-5aaaa-aaaas-qbyna-cai.icp0.io/
+
 ## Quick start
 
 ### Prerequisites
