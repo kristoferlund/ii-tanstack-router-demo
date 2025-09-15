@@ -2,56 +2,56 @@
 
 A minimal demo showing how to integrate Internet Identity (`ic-use-internet-identity`) and typed canister hooks (`ic-use-actor`) into a React + Vite application that uses TanStack Router. The repository demonstrates the recommended pattern: initialize Internet Identity at the app root, restore any cached identity, wait for actor hooks to initialize, then authenticate actors with the restored identity (useful for route guards / pre-loaders).
 
-Why this demo
+## Overview
 
 - Purpose: show a correct, practical wiring of Internet Identity + `ic-use-actor` in a Vite + React app that uses TanStack Router.
 - Demonstrates: restoring cached identity, initializing typed actor hooks, authenticating actors before loading protected routes.
 - Includes local development support for a local Internet Identity canister.
 
-Highlights
+## Features
 
 - Root `InternetIdentityProvider` mounted at the app root.
 - Typed actor hooks created with `ic-use-actor` and authenticated with the restored identity.
 - Example `beforeLoad`/pre-loader usage with TanStack Router to ensure identity and actors before route navigation.
 - Local II support: when running against a local `dfx` network the demo points to the local Internet Identity canister.
 
-Quick start
+## Quick start
 
-Prerequisites
+### Prerequisites
 
 - `pnpm`
 - (For local canister development) `dfx` and a local Internet Computer replica
 - Node.js
 
-Install dependencies
+### Install dependencies
 
 ```bash
 pnpm install
 ```
 
-Start local replica (optional, for local canisters)
+### Start local replica (optional, for local canisters)
 
 ```bash
 dfx start --background
 ```
 
-Deploy canisters (optional)
+### Deploy canisters (optional)
 
 ```bash
 dfx deploy
 ```
 
-Start the frontend
+### Start the frontend
 
 ```bash
 pnpm run dev
 ```
 
-Local Internet Identity
+## Local Internet Identity
 
 The demo automatically uses a local Internet Identity URL when `process.env.DFX_NETWORK === "local"`. The app's `src/frontend/main.tsx` demonstrates the pattern:
 
-```ts
+```tsx
 <InternetIdentityProvider
   loginOptions={{
     identityProvider:
@@ -66,7 +66,7 @@ The demo automatically uses a local Internet Identity URL when `process.env.DFX_
 
 When running locally, ensure `CANISTER_ID_INTERNET_IDENTITY` is available in the environment (or let `dfx` provide it).
 
-Router integration (TanStack Router)
+## Router integration (TanStack Router)
 
 Key idea: always await the identity initialization first, then ensure actor hooks are initialized, then authenticate actor hooks with the identity — perform these steps in a route `beforeLoad` / pre-loader so protected routes only render after these steps complete.
 
@@ -94,33 +94,33 @@ export const protectedRoute = createRoute({
 });
 ```
 
-Important: `beforeLoad` runs during navigation and does not automatically react to later auth changes — inside components observe auth state reactively.
+> Important: `beforeLoad` runs during navigation and does not automatically react to later auth changes — inside components observe auth state reactively.
 
-Login flow (UI)
+## Login flow (UI)
 
 Use the `useInternetIdentity()` hook from `ic-use-internet-identity` inside components to trigger `login()` during a user interaction (for example, on a button click). The hook exposes `login()`, `clear()`, `status`, `error`, `identity` and convenience booleans (`isIdle`, `isLoggingIn`, etc.).
 
 Attach the restored identity to your actor hooks by calling each hook's `authenticate(identity)`; the `ic-use-actor` helper `authenticateAll(identity)` can authenticate all registered hooks at once.
 
-Project structure
+## Project structure
 
 - `src/frontend` — React app, components, routes, `main.tsx` (where `InternetIdentityProvider` is mounted).
 - `src/backend` — Rust canister (simple greet example used by the template).
 - `routeTree.gen.ts` — generated TanStack Router route tree used by the demo.
 
-Notes about this demo
+## Notes
 
-- This repository references the helper libraries as local workspace packages in `package.json`:
-  - `ic-use-actor` and `ic-use-internet-identity` are referenced with `file:` paths for local development.
+- The repository references helper libraries as local workspace packages in `package.json` for local development:
+  - `ic-use-actor` and `ic-use-internet-identity` (look for `file:` entries in `package.json`).
 - Recent changes in this demo:
   - Use local Internet Identity for authentication when running locally.
   - Use `ic-use-actor` for backend calls and demonstrate authenticating actors before protected routes load.
-- If you want to use published packages instead of local workspace packages, replace the `file:` dependencies in `package.json` with the npm package names.
+- If you prefer published packages instead of local workspace packages, replace the `file:` dependencies in `package.json` with the npm package names.
 
-Contributing
+## Contributing
 
 Small, focused PRs are welcome. See `AGENTS.md` for recommended local dev commands and constraints when working with canisters.
 
-License
+## License
 
 This demo is provided under the MIT License. See the `LICENSE` file for details.
