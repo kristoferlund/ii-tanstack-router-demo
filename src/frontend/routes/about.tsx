@@ -1,8 +1,8 @@
-import { authenticateRoute } from "@/lib/authenticate-route";
+import { requireAuth } from "@/lib/require-auth";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/about")({
-  beforeLoad: async () => authenticateRoute(),
+  beforeLoad: async () => requireAuth(),
   component: About,
 });
 

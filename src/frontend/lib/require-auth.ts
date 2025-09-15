@@ -2,7 +2,7 @@ import { isRedirect, redirect } from "@tanstack/react-router";
 import { ensureInitialized } from "ic-use-internet-identity";
 import { useBackend } from "./use-backend";
 
-export async function authenticateRoute() {
+export async function requireAuth() {
   try {
     const identity = await ensureInitialized();
     if (!identity) {
